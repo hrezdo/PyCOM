@@ -184,6 +184,7 @@ class LoRaNode():
 		SSID = 'Sensor config ' + self.IDhex
 		self.wlan.init(mode=network.WLAN.AP, ssid=SSID, auth=(network.WLAN.WPA2,'L0RaN0de'), channel=3, antenna=network.WLAN.INT_ANT)
 
+	#toto je battery funkcia
 	def ADCloopMeanStdDev():
 	    adc = machine.ADC(0)
 	    adcread = adc.channel(pin='P13')
