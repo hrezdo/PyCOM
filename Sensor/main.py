@@ -1,3 +1,5 @@
+#vidis totot ?
+
 import network
 from network import LoRa
 import binascii
