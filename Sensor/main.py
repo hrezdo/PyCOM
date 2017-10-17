@@ -1,4 +1,5 @@
 #vidis totot ?
+# <C> telekom
 
 import network
 from network import LoRa
