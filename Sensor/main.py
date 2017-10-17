@@ -1,10 +1,3 @@
-#vidis totot ?
-<<<<<<< HEAD
-# <C> telekom
-
-=======
-#cfghfghfghf
->>>>>>> 3200478d2f57570491e116399d0ee6c397e38b58
 import network
 from network import LoRa
 import binascii
