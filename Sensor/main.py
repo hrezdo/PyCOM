@@ -10,6 +10,7 @@ import machine
 from machine import Pin
 import gc
 import crypto
+import math
 
 VERSION = "v0.1 on 2017-03-21"
 
@@ -27,6 +28,8 @@ CODING_RATE = ["4/5", "4/6", "4/7", "4/8"]
 SPREADING_FACTOR = ["7", "8", "9", "10", "11", "12"]
 
 pycom.heartbeat(False)
+#averaging battery
+numADCreadings = const(100)
 
 i2c = machine.I2C(0, machine.I2C.MASTER, baudrate=100000, pins=('P8', 'P9'))
 rtc = machine.RTC()
@@ -170,6 +173,7 @@ class LoRaNode():
 		else:
 			self.p("INFO", "Distance: %scm" % (self.distance))
 			self.p("INFO", "Voltage: %sV" % (self.voltage))
+		self.ADCloopMeanStdDev()
 		self.sendUpdateToGateway()
 
 		#time.sleep(5)
@@ -179,6 +183,28 @@ class LoRaNode():
 		self.p("INFO", "Starting in configuration mode")
 		SSID = 'Sensor config ' + self.IDhex
 		self.wlan.init(mode=network.WLAN.AP, ssid=SSID, auth=(network.WLAN.WPA2,'L0RaN0de'), channel=3, antenna=network.WLAN.INT_ANT)
+
+	def ADCloopMeanStdDev():
+	    adc = machine.ADC(0)
+	    adcread = adc.channel(pin='P13')
+	    samplesADC = [0.0]*numADCreadings; meanADC = 0.0
+	    i = 0
+	    while (i < numADCreadings):
+	        adcint = adcread()
+	        samplesADC[i] = adcint
+	        meanADC += adcint
+	        i += 1
+	    meanADC /= numADCreadings
+	    varianceADC = 0.0
+	    for adcint in samplesADC:
+	        varianceADC += (adcint - meanADC)**2
+	    varianceADC /= (numADCreadings - 1)
+	    print("%u ADC readings :\n%s" %(numADCreadings, str(samplesADC)))
+	    print("Mean of ADC readings (0-1023) = %15.13f" % meanADC)
+	    print("Mean of ADC readings (0-1000 mV) = %15.13f" % (meanADC*1000/1024))
+	    print("Variance of ADC readings = %15.13f" % varianceADC)
+	    print("10**6*Variance/(Mean**2) of ADC readings = %15.13f" % ((varianceADC*10**6)//(meanADC**2)))
+	    print("Standard deviation of ADC readings = %15.13f" % math.sqrt(varianceADC))
 
 node = LoRaNode(i2c, rtc)
 node.run()
